@@ -19,9 +19,6 @@ from semilearn.datasets.augmentation import RandAugment
 from semilearn.datasets.utils import split_ssl_data
 from .datasetbase import BasicDataset
 
-
-
-
 def get_default_root():
     #home = expanduser("~")
     #dirpath = os.path.join(home, "medmnist")
@@ -947,11 +944,10 @@ def get_medmnist(args, alg, dataset_name, num_labels, num_classes,labeled_percen
     train_unlabeled_dataset.data = train_unlabeled_data
     train_labeled_dataset.targets = train_labeled_targets
     train_unlabeled_dataset.targets = train_unlabeled_targets
-    val_dataset = []
+    val_dataset = name2class[dataset_name](alg, root=data_dir, split="val", transform=transform_val, download=True, as_rgb=True)
     test_dataset = name2class[dataset_name](alg, root=data_dir, split="test", transform=transform_val, download=True, as_rgb=True)
 
     print(f"#Labeled: {len(train_labeled_dataset)} #Unlabeled: {len(train_unlabeled_dataset)} "
           f"#Val: {len(val_dataset)} #Test: {len(test_dataset)}")
 
-    return train_labeled_dataset, train_unlabeled_dataset, test_dataset
-
+    return train_labeled_dataset, train_unlabeled_dataset, val_dataset, test_dataset

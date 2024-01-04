@@ -73,9 +73,11 @@ def get_dataset(args, algorithm, dataset, num_labels, num_classes, labeled_perce
     from semilearn.datasets import get_brainscans, get_chestxray, get_eurosat, get_medmnist, get_semi_aves, get_cifar, get_svhn, get_stl10, get_imagenet, get_json_dset, get_pkl_dset
 
     if dataset == "chestxray":
-        lb_dset, ulb_dset, eval_dset = get_chestxray(args, algorithm, dataset, num_labels, num_classes, labeled_percentage,data_dir=data_dir, include_lb_to_ulb=include_lb_to_ulb)
-        test_dset = None
+        lb_dset, ulb_dset, eval_dset, test_dset = get_chestxray(args, algorithm, dataset, num_labels, num_classes, labeled_percentage,data_dir=data_dir, include_lb_to_ulb=include_lb_to_ulb)
         
+    elif dataset in ["tissuemnist", "pathmnist"]:
+        lb_dset, ulb_dset, eval_dset, test_dset = get_medmnist(args, algorithm, dataset, num_labels, num_classes,labeled_percentage, data_dir=data_dir,include_lb_to_ulb=include_lb_to_ulb )
+    
     elif dataset == "brainscans":
         lb_dset, ulb_dset, eval_dset = get_brainscans(args, algorithm, dataset, num_labels, num_classes, labeled_percentage,data_dir=data_dir, include_lb_to_ulb=include_lb_to_ulb)
         test_dset = None
@@ -83,15 +85,8 @@ def get_dataset(args, algorithm, dataset, num_labels, num_classes, labeled_perce
     elif dataset == "eurosat":
         lb_dset, ulb_dset, eval_dset = get_eurosat(args, algorithm, dataset, num_labels, num_classes, data_dir=data_dir, include_lb_to_ulb=include_lb_to_ulb)
         test_dset = None        
-        
-        
-    elif dataset in ["tissuemnist", "pathmnist"]:
-        lb_dset, ulb_dset, eval_dset = get_medmnist(args, algorithm, dataset, num_labels, num_classes,labeled_percentage, data_dir=data_dir,include_lb_to_ulb=include_lb_to_ulb )
-        test_dset = None
 
-    elif dataset in ["pathm"]:
-        lb_dset, ulb_dset, eval_dset = get_medmnist(args, algorithm, dataset, num_labels, num_classes, data_dir=data_dir,  include_lb_to_ulb=include_lb_to_ulb, labeled_percentage=0.2)
-        test_dset = None
+    
 
     elif dataset == "semi_aves":
         lb_dset, ulb_dset, eval_dset = get_semi_aves(args, algorithm, dataset, train_split='l_train_val', data_dir=data_dir)

@@ -73,7 +73,8 @@ class AlgorithmBase:
         # common model related parameters
         self.it = 0
         self.start_epoch = 0
-        self.best_eval_acc, self.best_it = 0.0, 0
+        self.best_balanced_acc = 0.0, 
+        self.best_it = 0
         self.bn_controller = Bn_Controller()
         self.net_builder = net_builder
         self.ema = None
@@ -359,7 +360,7 @@ class AlgorithmBase:
         y_pred = np.array(y_pred)
         y_logits = np.concatenate(y_logits)
         top1 = accuracy_score(y_true, y_pred)
-        balanced_top1 = balanced_accuracy_score(y_true, y_pred)
+        balanced_acc = balanced_accuracy_score(y_true, y_pred)
         precision = precision_score(y_true, y_pred, average='macro')
         recall = recall_score(y_true, y_pred, average='macro')
         F1 = f1_score(y_true, y_pred, average='macro')
@@ -370,7 +371,7 @@ class AlgorithmBase:
         self.model.train()
 
         eval_dict = {eval_dest+'/loss': total_loss / total_num, eval_dest+'/top-1-acc': top1, 
-                     eval_dest+'/balanced_acc': balanced_top1, eval_dest+'/precision': precision, eval_dest+'/recall': recall, eval_dest+'/F1': F1}
+                     eval_dest+'/balanced_acc': balanced_acc, eval_dest+'/precision': precision, eval_dest+'/recall': recall, eval_dest+'/F1': F1}
         if return_logits:
             eval_dict[eval_dest+'/logits'] = y_logits
         return eval_dict
@@ -389,7 +390,7 @@ class AlgorithmBase:
             'it': self.it + 1,
             'epoch': self.epoch + 1,
             'best_it': self.best_it,
-            'best_eval_acc': self.best_eval_acc,
+            'best_balanced_acc': self.best_balanced_acc,
         }
         if self.scheduler is not None:
             save_dict['scheduler'] = self.scheduler.state_dict()
@@ -420,8 +421,17 @@ class AlgorithmBase:
         self.start_epoch = checkpoint['epoch']
         self.epoch = self.start_epoch
         self.best_it = checkpoint['best_it']
-        self.best_eval_acc = checkpoint['best_eval_acc']
+
+
+
+        if 'best_balanced_acc' not in checkpoint:
+            self.best_balanced_acc = checkpoint['best_eval_acc']
+        else: 
+            self.best_balanced_acc = checkpoint['best_balanced_acc']
+
         self.optimizer.load_state_dict(checkpoint['optimizer'])
+        
+        
         if self.scheduler is not None and 'scheduler' in checkpoint:
             self.scheduler.load_state_dict(checkpoint['scheduler'])
         self.print_fn('Model loaded')
